@@ -1,14 +1,19 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './lib/AuthContext'
 import Home from './pages/Home'
 import Upload from './pages/Upload'
+import MyPosts from './pages/MyPosts'
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/upload" element={<Upload />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/upload" element={<Upload />} />
+          <Route path="/my-posts" element={<MyPosts />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   )
 }
