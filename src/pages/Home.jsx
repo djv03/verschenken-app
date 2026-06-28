@@ -12,7 +12,10 @@ export default function Home() {
     <div style={{ position: 'relative', width: '100%', height: '100dvh' }}>
       <Map userLat={lat} userLng={lng} />
       <div style={styles.topRight}>
-        {!loading && (user ? <Avatar /> : <AuthButton onSignIn={signIn} />)}
+        {loading
+          ? <span style={styles.authLoading}>Wird angemeldet…</span>
+          : (user ? <Avatar /> : <AuthButton onSignIn={signIn} />)
+        }
       </div>
     </div>
   )
@@ -24,5 +27,13 @@ const styles = {
     top: '1rem',
     right: '1rem',
     zIndex: 1000,
+  },
+  authLoading: {
+    fontSize: '0.8rem',
+    color: '#555',
+    background: '#fff',
+    padding: '0.3rem 0.75rem',
+    borderRadius: 20,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
   },
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
@@ -32,7 +32,13 @@ const FILTERS = [
 
 function RecenterMap({ center }) {
   const map = useMap()
-  useEffect(() => { if (center) map.setView(center, map.getZoom()) }, [center])
+  const centered = useRef(false)
+  useEffect(() => {
+    if (center && !centered.current) {
+      map.setView(center, map.getZoom())
+      centered.current = true
+    }
+  }, [center])
   return null
 }
 
@@ -41,6 +47,7 @@ export default function Map({ userLat, userLng }) {
   const [items, setItems] = useState([])
   const [selectedItem, setSelectedItem] = useState(null)
   const [filter, setFilter] = useState('all')
+  const [mapReady, setMapReady] = useState(false)
   const center = userLat != null ? [userLat, userLng] : BERLIN
 
   const fetchItems = useCallback(async () => {
@@ -48,7 +55,10 @@ export default function Map({ userLat, userLng }) {
       .from('items')
       .select('*')
       .eq('is_active', true)
-    if (!error && data) setItems(data)
+    if (!error && data) {
+      setItems(data)
+      setMapReady(true)
+    }
   }, [])
 
   useEffect(() => {
@@ -69,6 +79,14 @@ export default function Map({ userLat, userLng }) {
         .filter(i => i.flag_count < 3)
     )
     setSelectedItem(null)
+  }
+
+  if (!mapReady) {
+    return (
+      <div style={styles.mapLoader}>
+        <p style={styles.mapLoaderText}>Karte wird geladen…</p>
+      </div>
+    )
   }
 
   return (
@@ -143,4 +161,9 @@ const styles = {
     boxShadow: '0 4px 12px rgba(0,0,0,0.3)', zIndex: 1000,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
+  mapLoader: {
+    width: '100%', height: '100dvh', display: 'flex',
+    alignItems: 'center', justifyContent: 'center', background: '#f9f9f9',
+  },
+  mapLoaderText: { fontSize: '1rem', color: '#888' },
 }

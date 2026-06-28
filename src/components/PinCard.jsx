@@ -73,6 +73,7 @@ export default function PinCard({ item, userLat, userLng, onClose, onFlagged }) 
           {timeAgo(item.created_at)}
           {distance && <span style={styles.distance}> · {distance}</span>}
         </p>
+        {item.description && <p style={styles.description}>{item.description}</p>}
 
         <div style={styles.votes}>
           <button
@@ -124,4 +125,5 @@ const styles = {
     border: '1px solid #2d6a4f', borderRadius: 6, fontSize: '0.8rem', cursor: 'default',
   },
   hint: { margin: 0, fontSize: '0.75rem', color: '#aaa' },
+  description: { margin: 0, fontSize: '0.9rem', color: '#333', fontWeight: 500 },
 }

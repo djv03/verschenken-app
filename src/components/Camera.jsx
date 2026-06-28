@@ -42,6 +42,14 @@ export default function Camera({ onCapture }) {
     )
   }
 
+  if (!streaming && !preview) {
+    return (
+      <div style={styles.container}>
+        <p style={styles.loadingText}>Kamera wird geöffnet…</p>
+      </div>
+    )
+  }
+
   if (preview) {
     return (
       <div style={styles.container}>
@@ -147,5 +155,10 @@ const styles = {
     textAlign: 'center',
     padding: '1rem',
     fontSize: '1rem',
+  },
+  loadingText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: '1rem',
+    textAlign: 'center',
   },
 }

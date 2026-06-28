@@ -11,6 +11,7 @@ export default function Upload() {
   const { lat, lng, error: gpsError, loading: gpsLoading } = useLocation()
   const { user, loading: authLoading, signIn } = useAuthContext()
   const [capturedBlob, setCapturedBlob] = useState(null)
+  const [description, setDescription] = useState('')
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState(null)
 
@@ -27,7 +28,7 @@ export default function Upload() {
   }
 
   function handleCapture(blob) { setCapturedBlob(blob) }
-  function handleRetake() { setCapturedBlob(null); setUploadError(null) }
+  function handleRetake() { setCapturedBlob(null); setUploadError(null); setDescription('') }
 
   async function handlePost() {
     if (!capturedBlob) return
@@ -51,7 +52,7 @@ export default function Upload() {
 
       const { error: dbError } = await supabase
         .from('items')
-        .insert({ image_url: urlData.publicUrl, lat, lng, user_id: user.id })
+        .insert({ image_url: urlData.publicUrl, lat, lng, user_id: user.id, description: description.trim() || null })
       if (dbError) throw dbError
 
       navigate('/')
@@ -68,22 +69,42 @@ export default function Upload() {
   return (
     <div style={styles.container}>
       <img src={previewUrl} alt="Captured" style={styles.preview} />
-      <div style={styles.overlay}>
-        <div style={styles.coords}>
-          {gpsLoading && <span>Acquiring GPS…</span>}
-          {gpsError && <span style={styles.warn}>{gpsError}</span>}
-          {!gpsLoading && !gpsError && lat != null && (
-            <span>{lat.toFixed(5)}, {lng.toFixed(5)}</span>
-          )}
+
+      {uploading && (
+        <div style={styles.uploadingOverlay}>
+          <p style={styles.uploadingText}>Wird hochgeladen…</p>
         </div>
-        {uploadError && <p style={styles.error}>{uploadError}</p>}
-        <div style={styles.buttonRow}>
-          <button style={styles.secondaryBtn} onClick={handleRetake} disabled={uploading}>Retake</button>
-          <button style={styles.primaryBtn} onClick={handlePost} disabled={uploading || gpsLoading}>
-            {uploading ? 'Posting…' : 'Post'}
-          </button>
+      )}
+
+      {!uploading && (
+        <div style={styles.overlay}>
+          <div style={styles.coords}>
+            {gpsLoading && <span>Acquiring GPS…</span>}
+            {gpsError && <span style={styles.warn}>{gpsError}</span>}
+            {!gpsLoading && !gpsError && lat != null && (
+              <span>{lat.toFixed(5)}, {lng.toFixed(5)}</span>
+            )}
+          </div>
+          <div style={styles.descWrap}>
+            <textarea
+              style={styles.descInput}
+              placeholder="Was ist es? (optional) — z.B. Sofa, Bücher, Kinderspielzeug"
+              maxLength={100}
+              rows={2}
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+            />
+            <span style={styles.charCount}>{description.length}/100</span>
+          </div>
+          {uploadError && <p style={styles.error}>{uploadError}</p>}
+          <div style={styles.buttonRow}>
+            <button style={styles.secondaryBtn} onClick={handleRetake}>Retake</button>
+            <button style={styles.primaryBtn} onClick={handlePost} disabled={gpsLoading}>
+              Post
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
@@ -120,5 +141,22 @@ const styles = {
   backBtn: {
     padding: '0.5rem 1.5rem', background: 'transparent', color: '#666',
     border: '1px solid #ccc', borderRadius: 8, fontSize: '0.9rem', cursor: 'pointer',
+  },
+  uploadingOverlay: {
+    position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.65)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  uploadingText: { color: '#fff', fontSize: '1.1rem', margin: 0 },
+  descWrap: { position: 'relative' },
+  descInput: {
+    width: '100%', background: 'rgba(0,0,0,0.45)', color: '#fff',
+    border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8,
+    padding: '0.5rem 0.6rem', fontSize: '0.9rem', resize: 'none',
+    fontFamily: 'inherit', boxSizing: 'border-box',
+    '::placeholder': { color: 'rgba(255,255,255,0.5)' },
+  },
+  charCount: {
+    position: 'absolute', bottom: 6, right: 8,
+    fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)',
   },
 }
