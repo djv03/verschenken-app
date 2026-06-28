@@ -55,10 +55,8 @@ export default function Map({ userLat, userLng }) {
       .from('items')
       .select('*')
       .eq('is_active', true)
-    if (!error && data) {
-      setItems(data)
-      setMapReady(true)
-    }
+    if (!error && data) setItems(data)
+    setMapReady(true)
   }, [])
 
   useEffect(() => {

@@ -42,14 +42,6 @@ export default function Camera({ onCapture }) {
     )
   }
 
-  if (!streaming && !preview) {
-    return (
-      <div style={styles.container}>
-        <p style={styles.loadingText}>Kamera wird geöffnet…</p>
-      </div>
-    )
-  }
-
   if (preview) {
     return (
       <div style={styles.container}>
@@ -65,6 +57,11 @@ export default function Camera({ onCapture }) {
   return (
     <div style={styles.container}>
       <video ref={videoRef} style={styles.video} autoPlay playsInline muted />
+      {!streaming && (
+        <div style={styles.loadingOverlay}>
+          <p style={styles.loadingText}>Kamera wird geöffnet…</p>
+        </div>
+      )}
       <div style={styles.captureRow}>
         <button
           style={streaming ? styles.captureBtn : styles.captureBtnDisabled}
@@ -156,9 +153,9 @@ const styles = {
     padding: '1rem',
     fontSize: '1rem',
   },
-  loadingText: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: '1rem',
-    textAlign: 'center',
+  loadingOverlay: {
+    position: 'absolute', inset: 0, display: 'flex',
+    alignItems: 'center', justifyContent: 'center', background: '#000',
   },
+  loadingText: { color: 'rgba(255,255,255,0.7)', fontSize: '1rem' },
 }
