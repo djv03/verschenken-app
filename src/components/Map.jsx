@@ -96,7 +96,7 @@ export default function Map({ userLat, userLng }) {
             <Marker
               key={item.id}
               position={[item.lat, item.lng]}
-              icon={item.gone_count >= 3 ? possiblyGoneIcon : undefined}
+              {...(item.gone_count >= 3 ? { icon: possiblyGoneIcon } : {})}
               eventHandlers={{ click: () => setSelectedItem(item) }}
             />
           ))}
